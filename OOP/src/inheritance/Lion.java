@@ -6,6 +6,7 @@ public class Lion extends CatFamily{
         super(4,2,true);
     }
 
+    //пууппу
     public void eat(){
         super.eat();
         System.out.println("еду");
