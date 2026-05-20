@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: Bank Card Management API
+  version: 1.0.0
+  description: API for managing bank cards, users, JWT authentication and transfers between own cards.
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/admin/cards:
+    get:
+      tags: [Admin Cards]
+      summary: Get all cards with filtering and pagination
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, BLOCKED, EXPIRED]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Page of cards
+    post:
+      tags: [Admin Cards]
+      summary: Create card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+      responses:
+        '201':
+          description: Created card
+  /api/admin/cards/{id}:
+    get:
+      tags: [Admin Cards]
+      summary: Get card by id
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Card
+    put:
+      tags: [Admin Cards]
+      summary: Update card
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardUpdateRequest'
+      responses:
+        '200':
+          description: Updated card
+    delete:
+      tags: [Admin Cards]
+      summary: Delete card
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Deleted
+  /api/admin/cards/{id}/block:
+    patch:
+      tags: [Admin Cards]
+      summary: Block card
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Blocked card
+  /api/admin/cards/{id}/activate:
+    patch:
+      tags: [Admin Cards]
+      summary: Activate card
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Activated card
+  /api/cards/my:
+    get:
+      tags: [User Cards]
+      summary: Get current user's cards
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, BLOCKED, EXPIRED]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Page of cards
+  /api/cards/{id}/balance:
+    get:
+      tags: [User Cards]
+      summary: Get current user's card balance
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Balance
+  /api/cards/{id}/block-request:
+    patch:
+      tags: [User Cards]
+      summary: Request card block
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Card with block request flag
+  /api/transfers:
+    post:
+      tags: [Transfers]
+      summary: Transfer money between current user's own cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Transfer completed
+  /api/admin/users:
+    get:
+      tags: [Admin Users]
+      summary: Get all users
+      responses:
+        '200':
+          description: Page of users
+    post:
+      tags: [Admin Users]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: Created user
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    AuthRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        tokenType:
+          type: string
+    CardRequest:
+      type: object
+      required: [cardNumber, ownerUsername, expirationDate, balance]
+      properties:
+        cardNumber:
+          type: string
+          example: '1111222233334444'
+        ownerUsername:
+          type: string
+          example: user
+        expirationDate:
+          type: string
+          format: date
+        balance:
+          type: number
+          example: 1000.00
+    CardUpdateRequest:
+      type: object
+      properties:
+        expirationDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [ACTIVE, BLOCKED, EXPIRED]
+        balance:
+          type: number
+    TransferRequest:
+      type: object
+      required: [fromCardId, toCardId, amount]
+      properties:
+        fromCardId:
+          type: integer
+          format: int64
+        toCardId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+    UserRequest:
+      type: object
+      required: [username, password, fullName, roles]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        enabled:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+            enum: [ADMIN, USER]

@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: bank-card-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: bank_cards
+      MYSQL_USER: bank_user
+      MYSQL_PASSWORD: bank_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: bank-card-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bank_cards?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: bank_user
+      SPRING_DATASOURCE_PASSWORD: bank_password
+      JWT_SECRET: change-this-secret-key-to-at-least-32-characters-long
+      CRYPTO_SECRET: change-this-card-encryption-secret-32-chars-min
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
