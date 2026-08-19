@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Студент</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; }
+        label { display: block; margin-top: 12px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        .error { color: #b00020; font-size: 14px; }
+        button { margin-top: 20px; padding: 10px 16px; }
+    </style>
+</head>
+<body>
+
+<h1 th:text="${pageTitle}"></h1>
+
+<form th:object="${student}"
+      th:action="${student.id == null} ? @{/students} : @{/students/{id}(id=${student.id})}"
+      method="post">
+
+    <label>Имя</label>
+    <input type="text" th:field="*{firstName}">
+    <div class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+
+    <label>Фамилия</label>
+    <input type="text" th:field="*{lastName}">
+    <div class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+
+    <label>Email</label>
+    <input type="email" th:field="*{email}">
+    <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+    <label>Возраст</label>
+    <input type="number" th:field="*{age}">
+    <div class="error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+
+    <button type="submit">Сохранить</button>
+</form>
+
+<p><a th:href="@{/students}">Назад к списку</a></p>
+
+</body>
+</html>

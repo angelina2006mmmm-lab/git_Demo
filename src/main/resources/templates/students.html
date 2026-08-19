@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Студенты</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        a, button { cursor: pointer; }
+        .actions { display: flex; gap: 8px; align-items: center; }
+    </style>
+</head>
+<body>
+<h1>Студенты</h1>
+
+<p>
+    <a th:href="@{/students/new}">Добавить студента</a>
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Email</th>
+        <th>Возраст</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="student : ${students}">
+        <td th:text="${student.id}"></td>
+        <td th:text="${student.firstName}"></td>
+        <td th:text="${student.lastName}"></td>
+        <td th:text="${student.email}"></td>
+        <td th:text="${student.age}"></td>
+        <td>
+            <div class="actions">
+                <a th:href="@{/students/{id}/edit(id=${student.id})}">Редактировать</a>
+
+                <form th:action="@{/students/{id}/delete(id=${student.id})}" method="post">
+                    <button type="submit">Удалить</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
