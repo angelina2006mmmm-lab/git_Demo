@@ -1,0 +1,2 @@
+package com.example.notification.consumer; import com.example.notification.event.StudentCreatedEvent; import org.slf4j.*; import org.springframework.kafka.annotation.KafkaListener; import org.springframework.stereotype.Component;
+@Component public class StudentCreatedConsumer{private static final Logger log=LoggerFactory.getLogger(StudentCreatedConsumer.class);@KafkaListener(topics="student.created",groupId="notification-service") public void handle(StudentCreatedEvent e){log.info("Student created: id={}, email={}, name={}",e.studentId(),e.email(),e.fullName());}}
